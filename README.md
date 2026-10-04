@@ -79,6 +79,17 @@ Use Node.js 20.19+ and npm. Start a local MongoDB server, or use a MongoDB Atlas
 
 The backend API defaults to port 3000. The backend intentionally refuses to start without a MongoDB URI and JWT secret. It does not silently switch to in-memory or mock data.
 
+## Production deployment
+
+The repository includes a Render Blueprint at `render.yaml` for the Express API and Vercel SPA fallback configuration at `frontend/vercel.json`.
+
+1. In Render, create a Blueprint from this repository and enter the private `MONGO_URI`, `CLIENT_URL`, `IMAGEKIT_PRIVATE_KEY` (optional), and `ADMIN_SIGNUP_KEY` values when prompted. Render generates `JWT_SECRET`.
+2. Deploy the frontend on Vercel with the project root set to `frontend`. Set `VITE_API_URL` to the deployed API origin plus `/api`, for example `https://issuehub-api.onrender.com/api`.
+3. Set Render's `CLIENT_URL` to the exact Vercel production origin (for example, `https://issuehub.vercel.app`) and redeploy the API.
+4. The Render Blueprint sets `AUTH_COOKIE_SAME_SITE=none` for cross-site cookie authentication; production cookies are secure and HTTP-only.
+
+Never commit production secrets or put backend credentials in Vercel environment variables. A MongoDB Atlas database must be reachable from Render.
+
 Issue photos are optional. The backend accepts one JPEG, PNG, or WebP image up to 5 MB, validates the image signature, uploads it to the existing reports folder in ImageKit, and stores the returned URL and ImageKit file ID with the report in MongoDB. Set `IMAGEKIT_PRIVATE_KEY` from your ImageKit account before using photo uploads; requests without a configured key receive a clear service-unavailable response. The key is never sent to the browser.
 
 ## Admin setup
